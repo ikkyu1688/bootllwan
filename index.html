@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>单数进球覆盖计算器</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f5f7;
+      --card: #ffffff;
+      --text: #17202a;
+      --muted: #697386;
+      --line: #d9e0ea;
+      --green: #047857;
+      --red: #b42318;
+      --amber: #b45309;
+      --blue: #1d4ed8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, Segoe UI, sans-serif;
+      line-height: 1.4;
+    }
+
+    main {
+      width: min(100%, 460px);
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    h1 {
+      margin: 4px 0 12px;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      margin-bottom: 12px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    input:focus {
+      outline: 3px solid #dbeafe;
+      border-color: var(--blue);
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .result {
+      display: grid;
+      gap: 10px;
+    }
+
+    .big {
+      border-radius: 8px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .big span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .big strong {
+      display: block;
+      font-size: 30px;
+      letter-spacing: 0;
+    }
+
+    .good strong { color: var(--green); }
+    .bad strong { color: var(--red); }
+    .warn strong { color: var(--amber); }
+
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      background: #ecfdf5;
+      color: #064e3b;
+    }
+
+    .status.bad {
+      background: #fef3f2;
+      color: #7a271a;
+    }
+
+    .bets {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bet {
+      display: grid;
+      grid-template-columns: 46px 1fr auto auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 54px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .ball {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .bet small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bet strong {
+      font-size: 22px;
+      white-space: nowrap;
+    }
+
+    .amount {
+      text-align: right;
+    }
+
+    .amount small {
+      margin-bottom: 2px;
+    }
+
+    .usdt strong {
+      color: var(--blue);
+      font-size: 18px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 360px) {
+      main { padding: 10px; }
+      .form { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+      .bet { grid-template-columns: 40px 1fr; gap: 8px; }
+      .ball { width: 38px; height: 38px; }
+      .bet strong { font-size: 20px; }
+      .amount { text-align: left; }
+      .usdt { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>进球覆盖计算器</h1>
+
+    <section class="card">
+      <div class="title">先填双数</div>
+      <div class="form">
+        <label>
+          双买金额
+          <input id="doubleStake" type="number" inputmode="decimal" step="1" value="100">
+        </label>
+        <label>
+          双水位
+          <input id="water" type="number" inputmode="decimal" step="0.01" value="9.4">
+        </label>
+        <label class="wide">
+          USDT 汇率
+          <input id="usdtRate" type="number" inputmode="decimal" step="0.01" value="7.20">
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="title">再填单数赔率</div>
+      <div class="form">
+        <label>
+          1球赔率
+          <input id="odd1" type="number" inputmode="decimal" step="0.01" value="6.40">
+        </label>
+        <label>
+          3球赔率
+          <input id="odd3" type="number" inputmode="decimal" step="0.01" value="3.85">
+        </label>
+        <label class="wide">
+          5球赔率
+          <input id="odd5" type="number" inputmode="decimal" step="0.01" value="7.80">
+        </label>
+        <label class="wide">
+          7+赔率
+          <input id="odd7plus" type="number" inputmode="decimal" step="0.01" placeholder="不填则不算">
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="title">结果</div>
+      <div class="result">
+        <div class="big warn">
+          <span>双数盈利</span>
+          <strong id="doubleProfit">-</strong>
+        </div>
+        <div class="big" id="totalBox">
+          <span>单数项要买合计</span>
+          <strong id="singleTotal">-</strong>
+        </div>
+        <div class="big" id="gapBox">
+          <span>剩余水位差</span>
+          <strong id="gap">-</strong>
+        </div>
+        <div class="status" id="status">-</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="title">单数分别买</div>
+      <div class="bets" id="bets"></div>
+      <p class="hint">算法：每项下注 = 双买金额 ÷ (该进球赔率 - 1)。例如 6.40 倍，100 ÷ 5.40 = 18.52，买 20 左右即可覆盖。</p>
+    </section>
+  </main>
+
+  <script>
+    const fields = ["doubleStake", "water", "usdtRate", "odd1", "odd3", "odd5", "odd7plus"];
+    fields.forEach(id => document.getElementById(id).addEventListener("input", calculate));
+
+    function num(id) {
+      const value = Number(document.getElementById(id).value);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    }
+
+    function money(value) {
+      if (!Number.isFinite(value)) return "-";
+      return value.toLocaleString("zh-CN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function usdt(value) {
+      if (!Number.isFinite(value)) return "-";
+      return value.toLocaleString("zh-CN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function waterRate(value) {
+      if (!value) return 0;
+      return value > 2 ? value / 10 : value;
+    }
+
+    function setBox(id, good) {
+      const el = document.getElementById(id);
+      el.classList.remove("good", "bad");
+      el.classList.add(good ? "good" : "bad");
+    }
+
+    function calculate() {
+      const doubleStake = num("doubleStake");
+      const water = waterRate(num("water"));
+      const usdtRate = num("usdtRate");
+      const items = [
+        { goal: "1", odds: num("odd1") },
+        { goal: "3", odds: num("odd3") },
+        { goal: "5", odds: num("odd5") },
+        { goal: "7+", odds: num("odd7plus") }
+      ].filter(item => item.odds > 1);
+
+      const doubleProfit = doubleStake * water;
+      const bets = items.map(item => ({
+        ...item,
+        stake: item.odds > 1 ? doubleStake / (item.odds - 1) : 0
+      }));
+      const singleTotal = bets.reduce((sum, item) => sum + item.stake, 0);
+      const gap = doubleProfit - singleTotal;
+      const ok = gap > 0;
+
+      document.getElementById("doubleProfit").textContent = money(doubleProfit);
+      document.getElementById("singleTotal").textContent = money(singleTotal);
+      document.getElementById("gap").textContent = `${gap >= 0 ? "+" : ""}${money(gap)}`;
+      setBox("totalBox", singleTotal < doubleProfit);
+      setBox("gapBox", ok);
+
+      const status = document.getElementById("status");
+      status.classList.toggle("bad", !ok);
+      status.textContent = ok
+        ? `可以做：单数项合计低于双数盈利，还剩 ${money(gap)}`
+        : `不划算：单数项合计超过双数盈利 ${money(Math.abs(gap))}`;
+
+      document.getElementById("bets").innerHTML = bets.map(item => `
+        <div class="bet">
+          <div class="ball">${item.goal}</div>
+          <div>
+            <div>${item.goal}球</div>
+            <small>赔率 ${item.odds.toFixed(2)}</small>
+          </div>
+          <div class="amount">
+            <small>金额</small>
+            <strong>${money(item.stake)}</strong>
+          </div>
+          <div class="amount usdt">
+            <small>USDT</small>
+            <strong>${usdtRate ? usdt(item.stake / usdtRate) : "-"}</strong>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    calculate();
+  </script>
+</body>
+</html>
