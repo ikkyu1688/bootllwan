@@ -85,7 +85,33 @@
       border-color: var(--blue);
     }
 
+    button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: var(--blue);
+      color: #fff;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
     .wide { grid-column: 1 / -1; }
+
+    .rate-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+      grid-column: 1 / -1;
+    }
+
+    .rate-status {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 12px;
+    }
 
     .result {
       display: grid;
@@ -192,6 +218,7 @@
       main { padding: 10px; }
       .form { grid-template-columns: 1fr; }
       .wide { grid-column: auto; }
+      .rate-line { grid-template-columns: 1fr; }
       .bet { grid-template-columns: 40px 1fr; gap: 8px; }
       .ball { width: 38px; height: 38px; }
       .bet strong { font-size: 20px; }
@@ -215,10 +242,14 @@
           双水位
           <input id="water" type="number" inputmode="decimal" step="0.01" value="9.4">
         </label>
-        <label class="wide">
-          USDT 汇率
-          <input id="usdtRate" type="number" inputmode="decimal" step="0.01" value="7.20">
-        </label>
+        <div class="rate-line">
+          <label>
+            USDT实时汇率
+            <input id="usdtRate" type="number" inputmode="decimal" step="0.01" value="6.78">
+          </label>
+          <button id="refreshRate" type="button">刷新</button>
+        </div>
+        <div class="rate-status" id="rateStatus">打开页面后自动获取 USDT/CNY。</div>
       </div>
     </section>
 
@@ -273,6 +304,7 @@
   <script>
     const fields = ["doubleStake", "water", "usdtRate", "odd1", "odd3", "odd5", "odd7plus"];
     fields.forEach(id => document.getElementById(id).addEventListener("input", calculate));
+    document.getElementById("refreshRate").addEventListener("click", fetchUsdtRate);
 
     function num(id) {
       const value = Number(document.getElementById(id).value);
@@ -357,7 +389,27 @@
       `).join("");
     }
 
+    async function fetchUsdtRate() {
+      const status = document.getElementById("rateStatus");
+      status.textContent = "正在获取实时汇率...";
+      try {
+        const url = `https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=cny&_=${Date.now()}`;
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) throw new Error("rate request failed");
+        const data = await response.json();
+        const rate = Number(data?.tether?.cny);
+        if (!Number.isFinite(rate) || rate <= 0) throw new Error("invalid rate");
+        document.getElementById("usdtRate").value = rate.toFixed(2);
+        calculate();
+        status.textContent = `已更新：1 USDT = ${rate.toFixed(2)}，${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
+      } catch (error) {
+        status.textContent = "实时汇率获取失败，可手动填写。";
+      }
+    }
+
     calculate();
+    fetchUsdtRate();
+    setInterval(fetchUsdtRate, 60000);
   </script>
 </body>
 </html>
