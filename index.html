@@ -268,6 +268,10 @@
           <input id="odd5" type="number" inputmode="decimal" step="0.01" value="7.80">
         </label>
         <label>
+          6+赔率
+          <input id="odd6plus" type="number" inputmode="decimal" step="0.01" placeholder="不填则不算">
+        </label>
+        <label>
           7+赔率
           <input id="odd7plus" type="number" inputmode="decimal" step="0.01" placeholder="不填则不算">
         </label>
@@ -301,7 +305,7 @@
   </main>
 
   <script>
-    const fields = ["doubleStake", "water", "usdtRate", "odd1", "odd3", "odd5", "odd7plus"];
+    const fields = ["doubleStake", "water", "usdtRate", "odd1", "odd3", "odd5", "odd6plus", "odd7plus"];
     fields.forEach(id => document.getElementById(id).addEventListener("input", calculate));
     document.getElementById("refreshRate").addEventListener("click", () => fetchUsdtRate(true));
 
@@ -345,6 +349,7 @@
         { goal: "1", odds: num("odd1") },
         { goal: "3", odds: num("odd3") },
         { goal: "5", odds: num("odd5") },
+        { goal: "6+", odds: num("odd6plus") },
         { goal: "7+", odds: num("odd7plus") }
       ].filter(item => item.odds > 1);
 
