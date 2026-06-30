@@ -25,18 +25,18 @@
       background: var(--bg);
       color: var(--text);
       font-family: "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, Segoe UI, sans-serif;
-      line-height: 1.4;
+      line-height: 1.25;
     }
 
     main {
       width: min(100%, 460px);
       margin: 0 auto;
-      padding: 14px;
+      padding: 8px;
     }
 
     h1 {
-      margin: 4px 0 12px;
-      font-size: 22px;
+      margin: 0 0 6px;
+      font-size: 19px;
       letter-spacing: 0;
     }
 
@@ -44,39 +44,39 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 12px;
+      padding: 9px;
+      margin-bottom: 7px;
     }
 
     .title {
-      margin-bottom: 12px;
-      font-size: 16px;
+      margin-bottom: 7px;
+      font-size: 14px;
       font-weight: 700;
     }
 
     .form {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 7px;
     }
 
     label {
       display: grid;
-      gap: 6px;
+      gap: 3px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
     }
 
     input {
       width: 100%;
-      min-height: 46px;
+      min-height: 37px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px 12px;
+      border-radius: 7px;
+      padding: 7px 9px;
       background: #fff;
       color: var(--text);
       font: inherit;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
     }
 
@@ -86,14 +86,14 @@
     }
 
     button {
-      min-height: 44px;
+      min-height: 37px;
       border: 0;
-      border-radius: 8px;
-      padding: 10px 12px;
+      border-radius: 7px;
+      padding: 7px 10px;
       background: var(--blue);
       color: #fff;
       font: inherit;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
     }
 
@@ -102,7 +102,7 @@
     .rate-line {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 10px;
+      gap: 7px;
       align-items: end;
       grid-column: 1 / -1;
     }
@@ -110,32 +110,35 @@
     .rate-status {
       grid-column: 1 / -1;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .result {
       display: grid;
-      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
     }
 
     .big {
-      border-radius: 8px;
-      padding: 14px;
+      border-radius: 7px;
+      padding: 8px;
       background: #f8fafc;
       border: 1px solid var(--line);
+      min-width: 0;
     }
 
     .big span {
       display: block;
       color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 4px;
+      font-size: 11px;
+      margin-bottom: 2px;
     }
 
     .big strong {
       display: block;
-      font-size: 30px;
+      font-size: 20px;
       letter-spacing: 0;
+      white-space: nowrap;
     }
 
     .good strong { color: var(--green); }
@@ -143,9 +146,10 @@
     .warn strong { color: var(--amber); }
 
     .status {
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 15px;
+      grid-column: 1 / -1;
+      padding: 8px;
+      border-radius: 7px;
+      font-size: 13px;
       font-weight: 700;
       background: #ecfdf5;
       color: #064e3b;
@@ -158,41 +162,41 @@
 
     .bets {
       display: grid;
-      gap: 8px;
+      gap: 5px;
     }
 
     .bet {
       display: grid;
-      grid-template-columns: 46px 1fr auto auto;
+      grid-template-columns: 34px 1fr auto auto;
       align-items: center;
-      gap: 8px;
-      min-height: 54px;
-      padding: 10px;
+      gap: 6px;
+      min-height: 42px;
+      padding: 6px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 7px;
       background: #fff;
     }
 
     .ball {
       display: grid;
       place-items: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 8px;
+      width: 31px;
+      height: 31px;
+      border-radius: 7px;
       background: #eef2ff;
       color: #3730a3;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 800;
     }
 
     .bet small {
       display: block;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 10px;
     }
 
     .bet strong {
-      font-size: 22px;
+      font-size: 17px;
       white-space: nowrap;
     }
 
@@ -206,24 +210,25 @@
 
     .usdt strong {
       color: var(--blue);
-      font-size: 18px;
+      font-size: 16px;
     }
 
     .hint {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 11px;
+      margin: 6px 0 0;
     }
 
     @media (max-width: 360px) {
-      main { padding: 10px; }
+      main { padding: 7px; }
       .form { grid-template-columns: 1fr; }
       .wide { grid-column: auto; }
       .rate-line { grid-template-columns: 1fr; }
-      .bet { grid-template-columns: 40px 1fr; gap: 8px; }
-      .ball { width: 38px; height: 38px; }
-      .bet strong { font-size: 20px; }
+      .result { grid-template-columns: 1fr; }
+      .bet { grid-template-columns: 32px 1fr auto auto; gap: 5px; }
+      .ball { width: 30px; height: 30px; }
+      .bet strong { font-size: 15px; }
       .amount { text-align: left; }
-      .usdt { grid-column: 2; }
     }
   </style>
 </head>
@@ -232,7 +237,7 @@
     <h1>进球覆盖计算器</h1>
 
     <section class="card">
-      <div class="title">先填双数</div>
+      <div class="title">输入</div>
       <div class="form">
         <label>
           双买金额
@@ -250,12 +255,6 @@
           <button id="refreshRate" type="button">刷新</button>
         </div>
         <div class="rate-status" id="rateStatus">打开页面后自动获取 USDT/CNY。</div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="title">再填单数赔率</div>
-      <div class="form">
         <label>
           1球赔率
           <input id="odd1" type="number" inputmode="decimal" step="0.01" value="6.40">
@@ -264,11 +263,11 @@
           3球赔率
           <input id="odd3" type="number" inputmode="decimal" step="0.01" value="3.85">
         </label>
-        <label class="wide">
+        <label>
           5球赔率
           <input id="odd5" type="number" inputmode="decimal" step="0.01" value="7.80">
         </label>
-        <label class="wide">
+        <label>
           7+赔率
           <input id="odd7plus" type="number" inputmode="decimal" step="0.01" placeholder="不填则不算">
         </label>
