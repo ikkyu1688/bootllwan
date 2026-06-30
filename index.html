@@ -167,7 +167,7 @@
 
     .bet {
       display: grid;
-      grid-template-columns: 34px 1fr auto auto;
+      grid-template-columns: 30px 1fr 1fr;
       align-items: center;
       gap: 6px;
       min-height: 42px;
@@ -213,6 +213,30 @@
       font-size: 16px;
     }
 
+    .dual {
+      display: grid;
+      gap: 3px;
+      text-align: right;
+      min-width: 0;
+    }
+
+    .dual div {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      align-items: baseline;
+      white-space: nowrap;
+    }
+
+    .dual small {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .dual strong {
+      font-size: 15px;
+    }
+
     .hint {
       color: var(--muted);
       font-size: 11px;
@@ -225,7 +249,7 @@
       .wide { grid-column: auto; }
       .rate-line { grid-template-columns: 1fr; }
       .result { grid-template-columns: 1fr; }
-      .bet { grid-template-columns: 32px 1fr auto auto; gap: 5px; }
+      .bet { grid-template-columns: 30px 1fr 1fr; gap: 5px; }
       .ball { width: 30px; height: 30px; }
       .bet strong { font-size: 15px; }
       .amount { text-align: left; }
@@ -296,7 +320,7 @@
     <section class="card">
       <div class="title">单数分别买</div>
       <div class="bets" id="bets"></div>
-      <p class="hint">算法：每项下注 = 双买金额 ÷ (该进球赔率 - 1)。例如 6.40 倍，100 ÷ 5.40 = 18.52，买 20 左右即可覆盖。</p>
+      <p class="hint">同时显示两种算法：减1 = 双买金额 ÷ (赔率 - 1)；不减 = 双买金额 ÷ 赔率。</p>
     </section>
   </main>
 
@@ -351,23 +375,26 @@
       const doubleProfit = doubleStake * water;
       const bets = items.map(item => ({
         ...item,
-        stake: item.odds > 1 ? doubleStake / (item.odds - 1) : 0
+        stakeMinus: item.odds > 1 ? doubleStake / (item.odds - 1) : 0,
+        stakeRaw: item.odds > 0 ? doubleStake / item.odds : 0
       }));
-      const singleTotal = bets.reduce((sum, item) => sum + item.stake, 0);
-      const gap = doubleProfit - singleTotal;
-      const ok = gap > 0;
+      const totalMinus = bets.reduce((sum, item) => sum + item.stakeMinus, 0);
+      const totalRaw = bets.reduce((sum, item) => sum + item.stakeRaw, 0);
+      const gapMinus = doubleProfit - totalMinus;
+      const gapRaw = doubleProfit - totalRaw;
+      const ok = gapMinus > 0 || gapRaw > 0;
 
       document.getElementById("doubleProfit").textContent = money(doubleProfit);
-      document.getElementById("singleTotal").textContent = money(singleTotal);
-      document.getElementById("gap").textContent = `${gap >= 0 ? "+" : ""}${money(gap)}`;
-      setBox("totalBox", singleTotal < doubleProfit);
+      document.getElementById("singleTotal").innerHTML = `<small>-1 ${money(totalMinus)}</small><br><small>不减 ${money(totalRaw)}</small>`;
+      document.getElementById("gap").innerHTML = `<small>-1 ${gapMinus >= 0 ? "+" : ""}${money(gapMinus)}</small><br><small>不减 ${gapRaw >= 0 ? "+" : ""}${money(gapRaw)}</small>`;
+      setBox("totalBox", totalMinus < doubleProfit || totalRaw < doubleProfit);
       setBox("gapBox", ok);
 
       const status = document.getElementById("status");
       status.classList.toggle("bad", !ok);
       status.textContent = ok
-        ? `可以做：单数项合计低于双数盈利，还剩 ${money(gap)}`
-        : `不划算：单数项合计超过双数盈利 ${money(Math.abs(gap))}`;
+        ? `可对比：减1剩 ${money(gapMinus)}，不减剩 ${money(gapRaw)}`
+        : `不划算：两种算法都超过双数盈利`;
 
       document.getElementById("bets").innerHTML = bets.map(item => `
         <div class="bet">
@@ -376,13 +403,13 @@
             <div>${item.goal}球</div>
             <small>赔率 ${item.odds.toFixed(2)}</small>
           </div>
-          <div class="amount">
-            <small>金额</small>
-            <strong>${money(item.stake)}</strong>
+          <div class="dual">
+            <div><small>-1</small><strong>${money(item.stakeMinus)}</strong></div>
+            <div><small>USDT</small><strong>${usdtRate ? usdt(item.stakeMinus / usdtRate) : "-"}</strong></div>
           </div>
-          <div class="amount usdt">
-            <small>USDT</small>
-            <strong>${usdtRate ? usdt(item.stake / usdtRate) : "-"}</strong>
+          <div class="dual usdt">
+            <div><small>不减</small><strong>${money(item.stakeRaw)}</strong></div>
+            <div><small>USDT</small><strong>${usdtRate ? usdt(item.stakeRaw / usdtRate) : "-"}</strong></div>
           </div>
         </div>
       `).join("");
