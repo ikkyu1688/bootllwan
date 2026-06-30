@@ -254,7 +254,7 @@
           </label>
           <button id="refreshRate" type="button">刷新</button>
         </div>
-        <div class="rate-status" id="rateStatus">打开页面后自动获取 USDT/CNY。</div>
+        <div class="rate-status" id="rateStatus">每天自动更新一次，也可手动刷新。</div>
         <label>
           1球赔率
           <input id="odd1" type="number" inputmode="decimal" step="0.01" value="6.40">
@@ -303,7 +303,7 @@
   <script>
     const fields = ["doubleStake", "water", "usdtRate", "odd1", "odd3", "odd5", "odd7plus"];
     fields.forEach(id => document.getElementById(id).addEventListener("input", calculate));
-    document.getElementById("refreshRate").addEventListener("click", fetchUsdtRate);
+    document.getElementById("refreshRate").addEventListener("click", () => fetchUsdtRate(true));
 
     function num(id) {
       const value = Number(document.getElementById(id).value);
@@ -388,7 +388,23 @@
       `).join("");
     }
 
-    async function fetchUsdtRate() {
+    function todayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function loadSavedRate() {
+      const saved = JSON.parse(localStorage.getItem("usdtCnyRate") || "null");
+      if (!saved?.rate) return false;
+      document.getElementById("usdtRate").value = Number(saved.rate).toFixed(2);
+      calculate();
+      document.getElementById("rateStatus").textContent = saved.date === todayKey()
+        ? `今日已更新：1 USDT = ${Number(saved.rate).toFixed(2)}`
+        : `上次汇率：1 USDT = ${Number(saved.rate).toFixed(2)}，点击刷新可更新`;
+      return saved.date === todayKey();
+    }
+
+    async function fetchUsdtRate(force = false) {
+      if (!force && loadSavedRate()) return;
       const status = document.getElementById("rateStatus");
       status.textContent = "正在获取实时汇率...";
       try {
@@ -399,8 +415,9 @@
         const rate = Number(data?.tether?.cny);
         if (!Number.isFinite(rate) || rate <= 0) throw new Error("invalid rate");
         document.getElementById("usdtRate").value = rate.toFixed(2);
+        localStorage.setItem("usdtCnyRate", JSON.stringify({ rate, date: todayKey() }));
         calculate();
-        status.textContent = `已更新：1 USDT = ${rate.toFixed(2)}，${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
+        status.textContent = `今日已更新：1 USDT = ${rate.toFixed(2)}`;
       } catch (error) {
         status.textContent = "实时汇率获取失败，可手动填写。";
       }
@@ -408,7 +425,6 @@
 
     calculate();
     fetchUsdtRate();
-    setInterval(fetchUsdtRate, 60000);
   </script>
 </body>
 </html>
