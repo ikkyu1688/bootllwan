@@ -300,7 +300,7 @@
     <section class="card">
       <div class="title">单数分别买</div>
       <div class="bets" id="bets"></div>
-      <p class="hint">算法：每项下注 = 双买金额 ÷ (该进球赔率 - 1)。例如 6.40 倍，100 ÷ 5.40 = 18.52。</p>
+      <p class="hint">算法：任意进球项命中时，要覆盖双买金额 + 所有进球项本金。每项下注 = 目标回报 ÷ 该项赔率。</p>
     </section>
   </main>
 
@@ -354,25 +354,32 @@
       ].filter(item => item.odds > 1);
 
       const doubleProfit = doubleStake * water;
+      const invTotal = items.reduce((sum, item) => sum + 1 / item.odds, 0);
+      const canCover = invTotal > 0 && invTotal < 1;
+      const targetReturn = canCover ? doubleStake / (1 - invTotal) : 0;
       const bets = items.map(item => ({
         ...item,
-        stake: item.odds > 1 ? doubleStake / (item.odds - 1) : 0
+        stake: canCover ? targetReturn / item.odds : 0
       }));
       const singleTotal = bets.reduce((sum, item) => sum + item.stake, 0);
       const gap = doubleProfit - singleTotal;
-      const ok = gap > 0;
+      const ok = canCover && gap > 0;
 
       document.getElementById("doubleProfit").textContent = money(doubleProfit);
-      document.getElementById("singleTotal").textContent = money(singleTotal);
-      document.getElementById("gap").textContent = `${gap >= 0 ? "+" : ""}${money(gap)}`;
-      setBox("totalBox", singleTotal < doubleProfit);
+      document.getElementById("singleTotal").textContent = canCover ? money(singleTotal) : "无法覆盖";
+      document.getElementById("gap").textContent = canCover ? `${gap >= 0 ? "+" : ""}${money(gap)}` : "-";
+      setBox("totalBox", canCover && singleTotal < doubleProfit);
       setBox("gapBox", ok);
 
       const status = document.getElementById("status");
       status.classList.toggle("bad", !ok);
-      status.textContent = ok
-        ? `可以做：单数项合计低于双数盈利，还剩 ${money(gap)}`
-        : `不划算：单数项合计超过双数盈利 ${money(Math.abs(gap))}`;
+      if (!canCover) {
+        status.textContent = "无法覆盖：参与项赔率太低，目标回报算不出来";
+      } else {
+        status.textContent = ok
+          ? `可以做：已覆盖所有进球项本金，还剩 ${money(gap)}`
+          : `不划算：进球项本金超过双数盈利 ${money(Math.abs(gap))}`;
+      }
 
       document.getElementById("bets").innerHTML = bets.map(item => `
         <div class="bet">
